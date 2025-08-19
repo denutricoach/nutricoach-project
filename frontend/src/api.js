@@ -9,6 +9,6 @@
  * - Live (op Render): Gebruikt de hardgecodeerde URL van de live backend,
  *   omdat de VITE_API_BASE_URL daar niet bestaat.
  */
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'https://nutricoach-project.onrender.com';
+const API_URL = process.env.REACT_APP_API_BASE_URL || 'https://nutricoach-project.onrender.com';
 
 export default API_URL;
