@@ -13,6 +13,7 @@ import UserDashboard from './components/UserDashboard';
 import Admin from './components/Admin';
 import UserDetail from './components/UserDetail';
 import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute'; // *** TOEGEVOEGD: Importeer de nieuwe PublicRoute ***
 
 const theme = extendTheme({
   colors: {
@@ -96,8 +97,10 @@ function App() {
         <Box p={8}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/coach" element={<CoachLogin />} />
+            {/* --- AANGEPAST: Gebruik PublicRoute voor login pagina's --- */}
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/coach" element={<PublicRoute><CoachLogin /></PublicRoute>} />
+            {/* --- Einde aanpassing --- */}
             <Route path="/intake" element={<Intake />} />
             <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
