@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Flex, Box, FormControl, FormLabel, Input, Stack, Button, Heading, Text, useColorModeValue, useToast
 } from '@chakra-ui/react';
+import API_URL from '../api';
 
 // Dit is de nieuwe, exclusieve login pagina voor de coach
 function CoachLogin() {
@@ -20,7 +21,8 @@ function CoachLogin() {
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password } ),
