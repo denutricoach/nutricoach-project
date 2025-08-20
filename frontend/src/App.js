@@ -93,7 +93,10 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <Router>
-        <Navigation />
+      
+        {/* --- AANGEPAST: De Navigation component is nu correct uitgeschakeld --- */}
+        {/* <Navigation /> */}
+        
         <Box p={8}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
