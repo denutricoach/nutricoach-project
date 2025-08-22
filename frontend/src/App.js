@@ -94,8 +94,8 @@ function App() {
     <ChakraProvider theme={theme}>
       <Router>
       
-        {/* --- AANGEPAST: De Navigation component is nu correct uitgeschakeld --- */}
-        {/* <Navigation /> */}
+        {/* --- AANGEPAST: De Navigation component is nu weer actief --- */}
+        <Navigation />
         
         <Box p={8}>
           <Routes>
