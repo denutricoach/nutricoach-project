@@ -1,7 +1,7 @@
 // frontend/src/components/LandingPage.js
 
 import React from 'react';
-import { Button, Flex, Heading, Stack, Text, Box } from '@chakra-ui/react'; // Box toegevoegd voor extra witruimte
+import { Button, Flex, Heading, Stack, Text, Box } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 
 function LandingPage() {
@@ -44,13 +44,13 @@ function LandingPage() {
           </Button>
         </Stack>
 
-        {/* --- TOEGEVOEGD: De nieuwe knop voor de coach, met wat extra ruimte erboven --- */}
+        {/* --- AANGEPAST: De knop heeft nu een 'ghost' variant en een kleurschema --- */}
         <Box pt={6}>
           <Button
             as={RouterLink}
             to="/coach"
-            variant="link"
-            colorScheme="gray"
+            variant="ghost" 
+            colorScheme="teal"
           >
             Inloggen voor Coach
           </Button>
