@@ -1,10 +1,10 @@
 // frontend/src/App.js
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
-import { ChakraProvider, Box, Flex, Heading, Link, Button, extendTheme, Spacer } from '@chakra-ui/react';
+import { BrowserRouter as Router, Routes, Route, Link as RouterLink, useNavigate } from 'react-router-dom';
+import { ChakraProvider, Box, Flex, Heading, Link, Button, extendTheme, Spacer, Spinner } from '@chakra-ui/react';
 
-// Importeer alle componenten, inclusief de nieuwe LandingPage
+// Importeer alle componenten
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import CoachLogin from './components/CoachLogin';
@@ -13,7 +13,7 @@ import UserDashboard from './components/UserDashboard';
 import Admin from './components/Admin';
 import UserDetail from './components/UserDetail';
 import ProtectedRoute from './components/ProtectedRoute';
-import PublicRoute from './components/PublicRoute'; // *** TOEGEVOEGD: Importeer de nieuwe PublicRoute ***
+import PublicRoute from './components/PublicRoute';
 
 const theme = extendTheme({
   colors: {
@@ -26,40 +26,10 @@ const theme = extendTheme({
   },
 });
 
-// De Intelligente Navigatiebalk
-function Navigation() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-    setUserRole(null);
-    navigate('/login');
-  }, [navigate]);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsLoggedIn(true);
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUserRole(payload.user.role);
-      } catch (e) {
-        console.error("Kon token niet decoderen:", e);
-        handleLogout();
-      }
-    } else {
-      setIsLoggedIn(false);
-      setUserRole(null);
-    }
-  }, [location, handleLogout]);
-
-  // Toon de navigatiebalk alleen als de gebruiker is ingelogd
+// --- AANGEPAST: De Navigatiebalk is nu een aparte, slimmere component ---
+function Navigation({ isLoggedIn, userRole, onLogout }) {
   if (!isLoggedIn) {
-    return null;
+    return null; // Toon niets als de gebruiker niet is ingelogd
   }
 
   return (
@@ -81,7 +51,7 @@ function Navigation() {
             Coach Dashboard
           </Link>
         )}
-        <Button onClick={handleLogout} variant="outline" _hover={{ bg: 'brand.900', borderColor: 'white' }}>
+        <Button onClick={onLogout} variant="outline" _hover={{ bg: 'brand.900', borderColor: 'white' }}>
           Uitloggen
         </Button>
       </Box>
@@ -90,29 +60,80 @@ function Navigation() {
 }
 
 function App() {
+  // --- AANGEPAST: Centrale state voor authenticatie, inclusief 'loading' ---
+  const [auth, setAuth] = useState({
+    isLoading: true, // Start met laden
+    isLoggedIn: false,
+    userRole: null,
+    token: null,
+  });
+  const navigate = useNavigate();
+
+  // Effect om de token te controleren bij het laden van de app
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setAuth({
+          isLoading: false,
+          isLoggedIn: true,
+          userRole: payload.user.role,
+          token: token,
+        });
+      } catch (e) {
+        localStorage.removeItem('token');
+        setAuth({ isLoading: false, isLoggedIn: false, userRole: null, token: null });
+      }
+    } else {
+      setAuth({ isLoading: false, isLoggedIn: false, userRole: null, token: null });
+    }
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token');
+    setAuth({ isLoading: false, isLoggedIn: false, userRole: null, token: null });
+    navigate('/login');
+  }, [navigate]);
+
+  // Toon een laadspinner zolang de authenticatie-check bezig is
+  if (auth.isLoading) {
+    return (
+      <ChakraProvider theme={theme}>
+        <Flex justify="center" align="center" height="100vh">
+          <Spinner size="xl" />
+        </Flex>
+      </ChakraProvider>
+    );
+  }
+
   return (
     <ChakraProvider theme={theme}>
-      <Router>
-      
-        {/* --- AANGEPAST: De Navigation component is nu weer actief --- */}
-        <Navigation />
-        
-        <Box p={8}>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            {/* --- AANGEPAST: Gebruik PublicRoute voor login pagina's --- */}
-            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-            <Route path="/coach" element={<PublicRoute><CoachLogin /></PublicRoute>} />
-            {/* --- Einde aanpassing --- */}
-            <Route path="/intake" element={<Intake />} />
-            <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-            <Route path="/admin/user/:userId" element={<ProtectedRoute><UserDetail /></ProtectedRoute>} />
-          </Routes>
-        </Box>
-      </Router>
+      <Navigation isLoggedIn={auth.isLoggedIn} userRole={auth.userRole} onLogout={handleLogout} />
+      <Box p={8}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<PublicRoute isLoggedIn={auth.isLoggedIn}><Login /></PublicRoute>} />
+          <Route path="/coach" element={<PublicRoute isLoggedIn={auth.isLoggedIn}><CoachLogin /></PublicRoute>} />
+          <Route path="/intake" element={<Intake />} />
+          
+          {/* --- AANGEPAST: Geef de auth-status door aan de ProtectedRoute --- */}
+          <Route path="/dashboard" element={<ProtectedRoute auth={auth}><UserDashboard /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute auth={auth}><Admin /></ProtectedRoute>} />
+          <Route path="/admin/user/:userId" element={<ProtectedRoute auth={auth}><UserDetail /></ProtectedRoute>} />
+        </Routes>
+      </Box>
     </ChakraProvider>
   );
 }
 
-export default App;
+// --- AANGEPAST: Exporteer de App gewikkeld in de Router ---
+function AppWrapper() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}
+
+export default AppWrapper;
