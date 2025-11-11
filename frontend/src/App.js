@@ -26,61 +26,31 @@ const theme = extendTheme({
   },
 });
 
-// --- AANGEPAST: De Navigatiebalk is nu een aparte, slimmere component ---
 function Navigation({ isLoggedIn, userRole, onLogout }) {
-  if (!isLoggedIn) {
-    return null; // Toon niets als de gebruiker niet is ingelogd
-  }
-
+  if (!isLoggedIn) return null;
   return (
     <Flex as="nav" align="center" justify="space-between" wrap="wrap" padding="1.5rem" bg="brand.500" color="white">
-      <Flex align="center" mr={5}>
-        <Heading as="h1" size="lg" letterSpacing={'-.1rem'}>
-          NutriCoach AI
-        </Heading>
-      </Flex>
+      <Flex align="center" mr={5}><Heading as="h1" size="lg" letterSpacing={'-.1rem'}>NutriCoach AI</Heading></Flex>
       <Spacer />
       <Box>
-        {userRole === 'user' && (
-          <Link as={RouterLink} to="/dashboard" mr={4}>
-            Mijn Dashboard
-          </Link>
-        )}
-        {userRole === 'coach' && (
-          <Link as={RouterLink} to="/admin" mr={4}>
-            Coach Dashboard
-          </Link>
-        )}
-        <Button onClick={onLogout} variant="outline" _hover={{ bg: 'brand.900', borderColor: 'white' }}>
-          Uitloggen
-        </Button>
+        {userRole === 'user' && <Link as={RouterLink} to="/dashboard" mr={4}>Mijn Dashboard</Link>}
+        {userRole === 'coach' && <Link as={RouterLink} to="/admin" mr={4}>Coach Dashboard</Link>}
+        <Button onClick={onLogout} variant="outline" _hover={{ bg: 'brand.900', borderColor: 'white' }}>Uitloggen</Button>
       </Box>
     </Flex>
   );
 }
 
 function App() {
-  // --- AANGEPAST: Centrale state voor authenticatie, inclusief 'loading' ---
-  const [auth, setAuth] = useState({
-    isLoading: true, // Start met laden
-    isLoggedIn: false,
-    userRole: null,
-    token: null,
-  });
+  const [auth, setAuth] = useState({ isLoading: true, isLoggedIn: false, userRole: null, token: null });
   const navigate = useNavigate();
 
-  // Effect om de token te controleren bij het laden van de app
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        setAuth({
-          isLoading: false,
-          isLoggedIn: true,
-          userRole: payload.user.role,
-          token: token,
-        });
+        setAuth({ isLoading: false, isLoggedIn: true, userRole: payload.user.role, token: token });
       } catch (e) {
         localStorage.removeItem('token');
         setAuth({ isLoading: false, isLoggedIn: false, userRole: null, token: null });
@@ -90,20 +60,35 @@ function App() {
     }
   }, []);
 
+  // --- NIEUW: Functie die wordt aangeroepen vanuit de login componenten ---
+  const handleLogin = (token) => {
+    localStorage.setItem('token', token);
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const role = payload.user.role;
+      setAuth({ isLoading: false, isLoggedIn: true, userRole: role, token: token });
+      // Stuur direct door na het updaten van de state
+      if (role === 'coach') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (e) {
+      console.error("Fout bij verwerken nieuwe login:", e);
+      // Fallback voor veiligheid
+      setAuth({ isLoading: false, isLoggedIn: false, userRole: null, token: null });
+    }
+  };
+
   const handleLogout = useCallback(() => {
     localStorage.removeItem('token');
     setAuth({ isLoading: false, isLoggedIn: false, userRole: null, token: null });
     navigate('/login');
   }, [navigate]);
 
-  // Toon een laadspinner zolang de authenticatie-check bezig is
   if (auth.isLoading) {
     return (
-      <ChakraProvider theme={theme}>
-        <Flex justify="center" align="center" height="100vh">
-          <Spinner size="xl" />
-        </Flex>
-      </ChakraProvider>
+      <ChakraProvider theme={theme}><Flex justify="center" align="center" height="100vh"><Spinner size="xl" /></Flex></ChakraProvider>
     );
   }
 
@@ -113,11 +98,10 @@ function App() {
       <Box p={8}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<PublicRoute isLoggedIn={auth.isLoggedIn}><Login /></PublicRoute>} />
-          <Route path="/coach" element={<PublicRoute isLoggedIn={auth.isLoggedIn}><CoachLogin /></PublicRoute>} />
+          {/* --- AANGEPAST: Geef de handleLogin functie door --- */}
+          <Route path="/login" element={<PublicRoute isLoggedIn={auth.isLoggedIn}><Login onLoginSuccess={handleLogin} /></PublicRoute>} />
+          <Route path="/coach" element={<PublicRoute isLoggedIn={auth.isLoggedIn}><CoachLogin onLoginSuccess={handleLogin} /></PublicRoute>} />
           <Route path="/intake" element={<Intake />} />
-          
-          {/* --- AANGEPAST: Geef de auth-status door aan de ProtectedRoute --- */}
           <Route path="/dashboard" element={<ProtectedRoute auth={auth}><UserDashboard /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute auth={auth}><Admin /></ProtectedRoute>} />
           <Route path="/admin/user/:userId" element={<ProtectedRoute auth={auth}><UserDetail /></ProtectedRoute>} />
@@ -127,13 +111,8 @@ function App() {
   );
 }
 
-// --- AANGEPAST: Exporteer de App gewikkeld in de Router ---
 function AppWrapper() {
-  return (
-    <Router>
-      <App />
-    </Router>
-  );
+  return (<Router><App /></Router>);
 }
 
 export default AppWrapper;
