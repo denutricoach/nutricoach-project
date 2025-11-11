@@ -1,7 +1,6 @@
 // frontend/src/components/Login.js
-
+import API_URL from '../api';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Flex, Box, FormControl, FormLabel, Input, Stack, Button, Heading, Text, useColorModeValue, useToast, Alert, AlertIcon
 } from '@chakra-ui/react';
@@ -11,7 +10,6 @@ function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const toast = useToast();
 
   const handleSubmit = async (event) => {
@@ -19,29 +17,29 @@ function Login() {
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      // --- GECORRIGEERD: Correcte aanhalingstekens (backticks) voor de fetch URL ---
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password } ),
+        body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || 'Inloggen mislukt');
       }
+      
       localStorage.setItem('token', data.token);
+      
       toast({
         title: 'Succesvol ingelogd!',
         status: 'success',
-        duration: 3000,
+        duration: 2000,
         isClosable: true,
       });
-      
-      const payload = JSON.parse(atob(data.token.split('.')[1]));
-      if (payload.user.role === 'coach') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+
+      // --- VERBETERD: Forceer een volledige pagina-herlading ---
+      // Dit zorgt ervoor dat de hele app-state (inclusief de rol) correct wordt geladen.
+      window.location.href = '/dashboard';
 
     } catch (err) {
       setError(err.message);

@@ -1,19 +1,15 @@
 // frontend/src/components/CoachLogin.js
-
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import API_URL from '../api';
 import {
   Flex, Box, FormControl, FormLabel, Input, Stack, Button, Heading, Text, useColorModeValue, useToast
 } from '@chakra-ui/react';
-import API_URL from '../api';
 
-// Dit is de nieuwe, exclusieve login pagina voor de coach
 function CoachLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const toast = useToast();
 
   const handleSubmit = async (event) => {
@@ -22,26 +18,28 @@ function CoachLogin() {
     setError('');
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
-
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password } ),
+        body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || 'Inloggen mislukt');
       }
+      
       localStorage.setItem('token', data.token);
+      
       toast({
         title: 'Succesvol ingelogd!',
         description: 'Welkom terug, Judith!',
         status: 'success',
-        duration: 3000,
+        duration: 2000,
         isClosable: true,
       });
       
-      // Stuur altijd direct naar het admin dashboard
-      navigate('/admin');
+      // --- VERBETERD: Forceer een volledige pagina-herlading ---
+      // Dit lost het "hangen" op en zorgt dat de app de nieuwe state correct laadt.
+      window.location.href = '/admin';
 
     } catch (err) {
       setError(err.message);
