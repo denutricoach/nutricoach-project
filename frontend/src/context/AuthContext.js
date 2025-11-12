@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import { api } from './api'; // Veronderstel dat api.js een functie 'api' exporteert
+import { api } from '../api'; // api.js bevindt zich in de src/ map, dus we moeten een niveau omhoog
 
 const AuthContext = createContext(null);
 
