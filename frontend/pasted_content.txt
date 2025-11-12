@@ -1,0 +1,22 @@
+Hallo Manus. Ik heb hier een .zip-bestand van mijn volledige "NutriCoach AI" project, inclusief de frontend (React) en backend (Node.js/Express) mappen. De applicatie is live maar kampt met een lijst van kritieke bugs en mist belangrijke features.
+Hoofddoel: Analyseer de volledige codebase (zowel frontend als backend), herstructureer deze, en los alle onderstaande problemen op. Lever een downloadbaar .zip-bestand terug met het complete, productieklare en bug-vrije project.
+De live API is bereikbaar op: https://nutricoach-project.onrender.com
+Lijst van Bugs om Op te Lossen (Gesorteerd op Prioriteit ):
+KRITIEKE REFRESH BUG (Punt #6): Het refreshen van elke beschermde pagina (zoals /dashboard of /admin) resulteert in een lege witte pagina. Dit is de hoogste prioriteit. Implementeer een robuuste, centrale authenticatie-state in de frontend die dit probleem definitief verhelpt.
+KRITIEKE LOGIN BUG (Punt #7): Bij het inloggen als nieuwe gebruiker (zowel op mobiel als laptop) verschijnt de foutmelding "Failed to fetch". Dit moet worden opgelost als onderdeel van de nieuwe, robuuste authenticatie-flow.
+INTAKE FORMULIER BUG (Punt #1): Bij het invullen van het intake-formulier worden antwoorden uit vorige vragen meegenomen in nieuwe vraagvelden. Zorg ervoor dat de state van het formulier correct wordt beheerd en gereset tussen de stappen.
+CHAT NOTIFICATIE BUG (Punt #8): Het rode notificatie-bolletje voor nieuwe berichten verdwijnt niet automatisch nadat een gesprek is geopend en de berichten zijn gelezen. Implementeer de logica om de "read" status correct bij te werken en de UI te updaten.
+AI PROMPT BUG (Punt #5): De AI in de coach-omgeving geeft een ongewenste afsluitende groet ("Met vriendelijke groet, [De Coach]"). Pas de betreffende prompt in de backend (backend/index.js) aan om dit te voorkomen.
+Nieuwe Features om te Implementeren:
+WACHTWOORD VERGETEN (Punt #2): Implementeer de volledige "wachtwoord vergeten" functionaliteit.
+Frontend: Voeg een "Wachtwoord vergeten?" link toe en maak de benodigde pagina's/componenten voor het aanvragen van een reset en het instellen van een nieuw wachtwoord.
+Backend: Voeg de API-endpoints (/api/auth/forgot-password, /api/auth/reset-password/:token) en de bijbehorende logica toe (genereren van een token, versturen van een e-mail, bijwerken van het wachtwoord).
+SOCIAL LOGINS (Punt #9): Implementeer de optie om in te loggen met een Google-account.
+Frontend: Voeg "Login met Google" knoppen toe en implementeer de client-side logica voor de OAuth-flow.
+Backend: Voeg het callback-endpoint (/api/auth/google/callback) toe om de gebruiker te verifiëren en aan te maken/in te loggen.
+E-MAILBEVESTIGING (Punt #3): Implementeer een systeem voor e-mailbevestiging na registratie.
+Backend: Genereer een unieke bevestigingstoken bij registratie en verstuur een e-mail met een bevestigingslink. Maak een endpoint om deze link te valideren.
+Frontend: Toon een melding aan de gebruiker dat ze hun e-mail moeten bevestigen.
+Algemene Verbetering:
+VLOEIENDE NAVIGATIE (Punt #4): Analyseer de routing en state-management en zorg ervoor dat de navigatie tussen pagina's soepel en zonder onverwachte haperingen of lege schermen verloopt. Dit zou grotendeels opgelost moeten zijn door de fix voor de refresh-bug.
+Ik verwacht een compleet en werkend project terug. Start met de kritieke bugs en werk daarna de rest

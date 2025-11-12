@@ -1,19 +1,20 @@
 // frontend/src/App.js
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link as RouterLink, useNavigate } from 'react-router-dom';
+import React, { useCallback } from 'react';
+import { Routes, Route, Link as RouterLink, useNavigate } from 'react-router-dom';
 import { ChakraProvider, Box, Flex, Heading, Link, Button, extendTheme, Spacer, Spinner } from '@chakra-ui/react';
 
 // Importeer alle componenten
-import LandingPage from './components/LandingPage';
-import Login from './components/Login';
-import CoachLogin from './components/CoachLogin';
+import LandingPage from './pages/LandingPage';
+import Login from './pages/Login';
+import CoachLogin from './pages/CoachLogin';
 import Intake from './components/Intake';
-import UserDashboard from './components/UserDashboard';
-import Admin from './components/Admin';
-import UserDetail from './components/UserDetail';
-import ProtectedRoute from './components/ProtectedRoute';
-import PublicRoute from './components/PublicRoute';
+import UserDashboard from './pages/UserDashboard';
+import Admin from './pages/Admin';
+import UserDetail from './pages/UserDetail';
+import ProtectedRoute from './utils/ProtectedRoute';
+import PublicRoute from './utils/PublicRoute';
+import { useAuth } from './context/AuthContext';
 
 const theme = extendTheme({
   colors: {
@@ -42,77 +43,39 @@ function Navigation({ isLoggedIn, userRole, onLogout }) {
 }
 
 function App() {
-  const [auth, setAuth] = useState({ isLoading: true, isLoggedIn: false, userRole: null, token: null });
+  const { isLoggedIn, isCoach, isLoading, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setAuth({ isLoading: false, isLoggedIn: true, userRole: payload.user.role, token: token });
-      } catch (e) {
-        localStorage.removeItem('token');
-        setAuth({ isLoading: false, isLoggedIn: false, userRole: null, token: null });
-      }
-    } else {
-      setAuth({ isLoading: false, isLoggedIn: false, userRole: null, token: null });
-    }
-  }, []);
-
-  // --- NIEUW: Functie die wordt aangeroepen vanuit de login componenten ---
-  const handleLogin = (token) => {
-    localStorage.setItem('token', token);
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const role = payload.user.role;
-      setAuth({ isLoading: false, isLoggedIn: true, userRole: role, token: token });
-      // Stuur direct door na het updaten van de state
-      if (role === 'coach') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
-    } catch (e) {
-      console.error("Fout bij verwerken nieuwe login:", e);
-      // Fallback voor veiligheid
-      setAuth({ isLoading: false, isLoggedIn: false, userRole: null, token: null });
-    }
-  };
-
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('token');
-    setAuth({ isLoading: false, isLoggedIn: false, userRole: null, token: null });
+    logout();
     navigate('/login');
-  }, [navigate]);
+  }, [logout, navigate]);
 
-  if (auth.isLoading) {
+  if (isLoading) {
     return (
       <ChakraProvider theme={theme}><Flex justify="center" align="center" height="100vh"><Spinner size="xl" /></Flex></ChakraProvider>
     );
   }
 
+  const userRole = isCoach ? 'coach' : 'user';
+
   return (
     <ChakraProvider theme={theme}>
-      <Navigation isLoggedIn={auth.isLoggedIn} userRole={auth.userRole} onLogout={handleLogout} />
+      <Navigation isLoggedIn={isLoggedIn} userRole={userRole} onLogout={handleLogout} />
       <Box p={8}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          {/* --- AANGEPAST: Geef de handleLogin functie door --- */}
-          <Route path="/login" element={<PublicRoute isLoggedIn={auth.isLoggedIn}><Login onLoginSuccess={handleLogin} /></PublicRoute>} />
-          <Route path="/coach" element={<PublicRoute isLoggedIn={auth.isLoggedIn}><CoachLogin onLoginSuccess={handleLogin} /></PublicRoute>} />
+          {/* --- AANGEPAST: Gebruik de AuthContext voor login/logout --- */}
+          <Route path="/login" element={<PublicRoute isLoggedIn={isLoggedIn}><Login /></PublicRoute>} />
+          <Route path="/coach" element={<PublicRoute isLoggedIn={isLoggedIn}><CoachLogin /></PublicRoute>} />
           <Route path="/intake" element={<Intake />} />
-          <Route path="/dashboard" element={<ProtectedRoute auth={auth}><UserDashboard /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute auth={auth}><Admin /></ProtectedRoute>} />
-          <Route path="/admin/user/:userId" element={<ProtectedRoute auth={auth}><UserDetail /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute isLoggedIn={isLoggedIn} isCoach={isCoach}><UserDashboard /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute isLoggedIn={isLoggedIn} isCoach={isCoach}><Admin /></ProtectedRoute>} />
+          <Route path="/admin/user/:userId" element={<ProtectedRoute isLoggedIn={isLoggedIn} isCoach={isCoach}><UserDetail /></ProtectedRoute>} />
         </Routes>
       </Box>
     </ChakraProvider>
   );
 }
 
-function AppWrapper() {
-  return (<Router><App /></Router>);
-}
-
-export default AppWrapper;
+export default App;

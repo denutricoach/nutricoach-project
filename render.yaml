@@ -1,0 +1,47 @@
+# render.yaml voor NutriCoach
+
+services:
+  # Backend Service
+  - type: web
+    name: nutricouch-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/auth/me
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false # Moet worden ingesteld in Render
+      - key: JWT_SECRET
+        sync: false # Moet worden ingesteld in Render
+      - key: CLIENT_URL
+        sync: false # Moet worden ingesteld in Render (Frontend URL)
+      - key: SERVER_URL
+        sync: false # Moet worden ingesteld in Render (Backend URL)
+      - key: EMAIL_USER
+        sync: false # Moet worden ingesteld in Render
+      - key: EMAIL_PASS
+        sync: false # Moet worden ingesteld in Render
+      - key: GOOGLE_CLIENT_ID
+        sync: false # Moet worden ingesteld in Render
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false # Moet worden ingesteld in Render
+      - key: SESSION_SECRET
+        sync: false # Moet worden ingesteld in Render
+
+  # Frontend Service
+  - type: web
+    name: nutricouch-frontend
+    env: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        sync: false # Moet worden ingesteld in Render (Backend URL)

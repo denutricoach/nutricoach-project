@@ -1,11 +1,9 @@
-// backend/models/User.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-password: { type: String, required: true },
-
- 
+  password: { type: String, required: true },
+  
   // Sectie 1: Algemeen
   algemeen_naam: { type: String, required: true },
   algemeen_leeftijd: { type: String },
@@ -57,11 +55,11 @@ password: { type: String, required: true },
   voorkeur_tijd_maaltijdbereiding: { type: String },
 
   // Sectie 9: Metingen
-metingen_vetpercentage: { type: String },
-metingen_spiermassa: { type: String },
-metingen_middelomtrek: { type: String },
+  metingen_vetpercentage: { type: String },
+  metingen_spiermassa: { type: String },
+  metingen_middelomtrek: { type: String },
 
-  // Sectie 10: Afspraak (Sectie 9 is optioneel en slaan we over in de basis)
+  // Sectie 10: Afspraak
   afspraak_verwachting_coach: { type: String },
   afspraak_contactmomenten: { type: String },
   afspraak_manier_coaching: { type: String },
@@ -72,7 +70,13 @@ metingen_middelomtrek: { type: String },
     content: String,
     timestamp: { type: Date, default: Date.now }
   }],
-  registratieDatum: { type: Date, default: Date.now }
+  registratieDatum: { type: Date, default: Date.now },
+  
+  // Nieuwe velden voor authenticatieverbeteringen
+  emailGeverifieerd: { type: Boolean, default: false },
+  emailVerificatieToken: { type: String },
+  wachtwoordResetToken: { type: String },
+  wachtwoordResetExpires: { type: Date }
 });
 
 module.exports = mongoose.model('User', userSchema);
