@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import WeightChart from './WeightChart';
-import GoalsModal from './GoalsModal';
-import RecipeModal from './RecipeModal';
-import FeedbackModal from './FeedbackModal';
+// CORRECTE IMPORTS
+import WeightChart from '../components/WeightChart';
+import GoalsModal from '../components/GoalsModal';
+import RecipeModal from '../components/RecipeModal';
+import FeedbackModal from '../components/FeedbackModal';
+
 
 
 import { AddIcon, CheckIcon, InfoIcon, SearchIcon, ArrowForwardIcon } from '@chakra-ui/icons';
