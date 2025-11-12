@@ -1,12 +1,12 @@
-// frontend/src/components/Admin.js
+// frontend/src/pages/Admin.js  (Let op: dit is waarschijnlijk een 'page', geen 'component')
 
 import React, { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
+// De foute import is hier verwijderd
 
 import {
   Box, Heading, SimpleGrid, Card, CardHeader, CardBody, CardFooter, Button, Text, Spinner, Flex, Alert, AlertIcon, Tag, HStack,
-  Badge // *** STAP 1: IMPORTEER DE BADGE ***
+  Badge
 } from '@chakra-ui/react';
 
 import { CheckCircleIcon, WarningIcon, InfoIcon } from '@chakra-ui/icons';
@@ -30,13 +30,12 @@ function Admin() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // *** STAP 2: PAS DE USEEFFECT AAN VOOR POLLING ***
   useEffect(() => {
     const fetchUsers = async () => {
       const token = localStorage.getItem('token');
       try {
-        // De backend route stuurt nu ook de 'unreadCount' mee
-        const response = await fetch(`${API_URL}/api/admin/users`, {
+        // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/users`, {
           headers: { 'x-auth-token': token },
         });
         if (!response.ok) {
@@ -47,21 +46,16 @@ function Admin() {
       } catch (err) {
         setError(err.message);
       } finally {
-        // Zorg ervoor dat de laadspinner alleen de eerste keer wordt uitgezet
         if (isLoading) {
           setIsLoading(false);
         }
       }
     };
 
-    fetchUsers(); // Haal direct op bij het laden
-
-    // Stel een interval in om elke 5 seconden te checken op updates
+    fetchUsers();
     const interval = setInterval(fetchUsers, 5000);
-
-    // Ruim het interval op als de component wordt unmount
     return () => clearInterval(interval);
-  }, [isLoading]); // We voegen isLoading toe zodat de finally block correct werkt
+  }, [isLoading]);
 
   if (isLoading) {
     return <Flex justify="center" align="center" height="80vh"><Spinner size="xl" /></Flex>;
@@ -97,7 +91,6 @@ function Admin() {
                 <Text><strong>Doel:</strong> {user.hulpvraag_doel || 'Niet opgegeven'}</Text>
               </CardBody>
               <CardFooter>
-                {/* *** STAP 3: VOEG DE BADGE TOE AAN DE KNOP *** */}
                 <Button as={RouterLink} to={`/admin/user/${user._id}`} colorScheme="teal" position="relative">
                   Bekijk Details
                   {user.unreadCount > 0 && (
