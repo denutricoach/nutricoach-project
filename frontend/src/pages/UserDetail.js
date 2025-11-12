@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom';
 
 import { jwtDecode } from 'jwt-decode';
 import WeightChart from '../components/WeightChart'; // CORRECT
- // *** STAP 1: IMPORTEER DE GRAFIEK ***
 
 import {
   Box, Heading, SimpleGrid, Card, CardHeader, CardBody, Text, Spinner, Flex, Alert, AlertIcon, Grid, GridItem, Textarea, Button, Stack, Tag, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Input, HStack
@@ -48,7 +47,8 @@ function DirectChat({ clientUserId }) {
     if (!clientUserId) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`${API_URL}/api/messages/${clientUserId}`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/messages/${clientUserId}`, {
         headers: { 'x-auth-token': token },
       });
       if (!response.ok) throw new Error('Kon berichten niet ophalen.');
@@ -76,7 +76,8 @@ function DirectChat({ clientUserId }) {
     if (!newMessage.trim() || !clientUserId) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`${API_URL}/api/messages`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ receiverId: clientUserId, content: newMessage }),
@@ -148,7 +149,8 @@ function FoodLogHistory({ userId }) {
     const fetchLogs = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`${API_URL}/api/admin/foodlogs/${userId}`, {
+        // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/foodlogs/${userId}`, {
           headers: { 'x-auth-token': token },
         });
         if (!response.ok) throw new Error('Kon voedingslogs niet ophalen.');
@@ -238,7 +240,8 @@ function CoachAssistant({ userId }) {
     setAnswer('');
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`${API_URL}/api/admin/ask-ai`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/ask-ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ userId, question: prompt }),
@@ -301,8 +304,8 @@ function UserDetail() {
     const fetchUserDetails = async () => {
       const token = localStorage.getItem('token');
       try {
-        // De backend route is nu aangepast en stuurt de weightLogs mee
-        const response = await fetch(`${API_URL}/api/admin/user/${userId}`, {
+        // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/user/${userId}`, {
           headers: { 'x-auth-token': token },
         });
         if (!response.ok) {
@@ -338,7 +341,6 @@ function UserDetail() {
         <GridItem>
           <Stack spacing={6}>
             
-            {/* *** STAP 2: TOON DE GRAFIEK *** */}
             {user.weightLogs && user.weightLogs.length > 0 && (
               <Card borderWidth="1px" borderRadius="lg" shadow="sm">
                 <CardHeader><Heading size="md">Gewichtsverloop</Heading></CardHeader>
