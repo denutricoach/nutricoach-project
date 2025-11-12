@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import API_URL from '../api';
+
 
 import {
   Box, Heading, SimpleGrid, Card, CardHeader, CardBody, CardFooter, Button, Text, Spinner, Flex, Alert, AlertIcon, Tag, HStack,
