@@ -1,10 +1,16 @@
-// frontend/src/components/CoachLogin.js
-import React, { useState } from 'react';\nimport { useAuth } from '../context/AuthContext';\nimport { useNavigate } from 'react-router-dom';
-import API_URL from '../api';
-import { Flex, Box, FormControl, FormLabel, Input, Stack, Button, Heading, Text, useColorModeValue, useToast } from '@chakra-ui/react';
+// frontend/src/pages/CoachLogin.js
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Flex, Box, FormControl, FormLabel, Input, Stack, Button, Heading, Text, useColorModeValue, useToast, Alert, AlertIcon } from '@chakra-ui/react';
 
+// De lokale API_URL import is verwijderd
 
 function CoachLogin() {
+  // --- FIX: login en navigate functies toegevoegd ---
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,7 +22,8 @@ function CoachLogin() {
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -48,11 +55,11 @@ function CoachLogin() {
         <Box rounded={'lg'} bg={useColorModeValue('white', 'gray.700')} boxShadow={'lg'} p={8}>
           <form onSubmit={handleSubmit}>
             <Stack spacing={4}>
-              <FormControl id="email"><FormLabel>E-mailadres</FormLabel><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></FormControl>
-              <FormControl id="password"><FormLabel>Wachtwoord</FormLabel><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></FormControl>
-              <Stack spacing={10}>
-                {error && <Text color="red.500">{error}</Text>}
-                <Button type="submit" bg={'teal.400'} color={'white'} _hover={{ bg: 'teal.500' }} isLoading={isLoading}>Inloggen</Button>
+              <FormControl id="email" isRequired><FormLabel>E-mailadres</FormLabel><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></FormControl>
+              <FormControl id="password" isRequired><FormLabel>Wachtwoord</FormLabel><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></FormControl>
+              <Stack spacing={6} mt={4}>
+                {error && <Alert status="error"><AlertIcon />{error}</Alert>}
+                <Button type="submit" colorScheme="teal" isLoading={isLoading}>Inloggen</Button>
               </Stack>
             </Stack>
           </form>

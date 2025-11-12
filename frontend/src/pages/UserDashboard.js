@@ -1,4 +1,4 @@
-// frontend/src/components/UserDashboard.js
+// frontend/src/pages/UserDashboard.js
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,13 +8,13 @@ import GoalsModal from '../components/GoalsModal';
 import RecipeModal from '../components/RecipeModal';
 import FeedbackModal from '../components/FeedbackModal';
 
-
+// De lokale API_URL import is verwijderd
 
 import { AddIcon, CheckIcon, InfoIcon, SearchIcon, ArrowForwardIcon } from '@chakra-ui/icons';
 import {
   Box, Button, Flex, Input, Stack, Heading, Text, useToast, Grid, GridItem, Textarea, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, Spinner, Image,
   Tabs, TabList, TabPanels, Tab, TabPanel, HStack,
-  Badge // *** STAP 1: IMPORTEER DE BADGE ***
+  Badge
 } from '@chakra-ui/react';
 
 // De FoodLogModal blijft ongewijzigd
@@ -53,7 +53,7 @@ function FoodLogModal({ isOpen, onClose, onVerstuur }) {
   );
 }
 
-// Het UserChatInterface component blijft ongewijzigd
+// Het UserChatInterface component
 function UserChatInterface({ user, coachId, unreadCount, onTabChange }) {
   const [aiChatHistory, setAiChatHistory] = useState([]);
   const [currentAiMessage, setCurrentAiMessage] = useState('');
@@ -77,7 +77,8 @@ function UserChatInterface({ user, coachId, unreadCount, onTabChange }) {
     if (!coachId || !user) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`${API_URL}/api/messages/${coachId}`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/messages/${coachId}`, {
         headers: { 'x-auth-token': token },
       });
       if (!response.ok) throw new Error('Kon coachberichten niet ophalen.');
@@ -106,7 +107,8 @@ function UserChatInterface({ user, coachId, unreadCount, onTabChange }) {
     setCurrentAiMessage('');
     setIsAiChatLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/chat`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ message: currentAiMessage }),
@@ -126,7 +128,8 @@ function UserChatInterface({ user, coachId, unreadCount, onTabChange }) {
     const token = localStorage.getItem('token');
     setIsCoachChatLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/messages`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ receiverId: coachId, content: currentCoachMessage }),
@@ -143,13 +146,11 @@ function UserChatInterface({ user, coachId, unreadCount, onTabChange }) {
 
   return (
     <Box p={5} shadow="md" borderWidth="1px" borderRadius="lg" height="100%" display="flex" flexDirection="column">
-      {/* *** STAP 4: ONCHANGE HANDLER TOEVOEGEN *** */}
       <Tabs isFitted variant="enclosed" colorScheme="teal" flex="1" display="flex" flexDirection="column" onChange={onTabChange}>
         <TabList>
           <Tab>Chat met AI</Tab>
           <Tab position="relative">
             Chat met Coach
-            {/* *** STAP 6: DE BADGE TOEVOEGEN *** */}
             {unreadCount > 0 && (
               <Badge 
                 colorScheme="red" 
@@ -230,7 +231,7 @@ function UserDashboard() {
   const [isRecipeLoading, setIsRecipeLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [coachId, setCoachId] = useState(null);
-  const [unreadCount, setUnreadCount] = useState(0); // *** STAP 2: STATE VOOR ONGELEZEN BERICHTEN ***
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const { isOpen: isFoodLogOpen, onOpen: onFoodLogOpen, onClose: onFoodLogClose } = useDisclosure();
   const { isOpen: isGoalsOpen, onOpen: onGoalsOpen, onClose: onGoalsClose } = useDisclosure();
@@ -245,11 +246,12 @@ function UserDashboard() {
         return;
       }
       try {
+        // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
         const [userResponse, weightResponse, photoResponse, coachResponse] = await Promise.all([
-          fetch(`${API_URL}/api/users/me`, { headers: { 'x-auth-token': token } }),
-          fetch(`${API_URL}/api/logs/gewicht`, { headers: { 'x-auth-token': token } }),
-          fetch(`${API_URL}/api/photos`, { headers: { 'x-auth-token': token } }),
-          fetch(`${API_URL}/api/coach/default`, { headers: { 'x-auth-token': token } })
+          fetch(`${process.env.REACT_APP_API_URL}/api/users/me`, { headers: { 'x-auth-token': token } }),
+          fetch(`${process.env.REACT_APP_API_URL}/api/logs/gewicht`, { headers: { 'x-auth-token': token } }),
+          fetch(`${process.env.REACT_APP_API_URL}/api/photos`, { headers: { 'x-auth-token': token } }),
+          fetch(`${process.env.REACT_APP_API_URL}/api/coach/default`, { headers: { 'x-auth-token': token } })
         ]);
 
         if (!userResponse.ok || !coachResponse.ok) throw new Error('Sessie verlopen of data niet gevonden');
@@ -275,14 +277,14 @@ function UserDashboard() {
     fetchData();
   }, [navigate]);
 
-  // *** STAP 3: USEEFFECT OM ONGELEZEN BERICHTEN OP TE HALEN ***
   useEffect(() => {
-    if (!coachId) return; // Wacht tot de coachId bekend is
+    if (!coachId) return;
 
     const fetchUnread = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`${API_URL}/api/messages/unread-count/${coachId}`, {
+        // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/messages/unread-count/${coachId}`, {
           headers: { 'x-auth-token': token },
         });
         const data = await response.json();
@@ -292,29 +294,28 @@ function UserDashboard() {
       }
     };
 
-    fetchUnread(); // Haal direct op
-    const interval = setInterval(fetchUnread, 5000); // En daarna elke 5 seconden
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 5000);
 
     return () => clearInterval(interval);
   }, [coachId]);
 
-  // *** STAP 5: FUNCTIE OM BERICHTEN ALS GELEZEN TE MARKEREN ***
   const markAsRead = async () => {
     if (!coachId || unreadCount === 0) return;
     const token = localStorage.getItem('token');
     try {
-      await fetch(`${API_URL}/api/messages/mark-as-read/${coachId}`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      await fetch(`${process.env.REACT_APP_API_URL}/api/messages/mark-as-read/${coachId}`, {
         method: 'POST',
         headers: { 'x-auth-token': token },
       });
-      setUnreadCount(0); // Zet de teller direct op 0 in de UI
+      setUnreadCount(0);
     } catch (error) {
       console.error("Kon berichten niet als gelezen markeren", error);
     }
   };
 
   const handleTabChange = (index) => {
-    // Index 1 is de "Chat met Coach" tab
     if (index === 1) {
       markAsRead();
     }
@@ -328,7 +329,8 @@ function UserDashboard() {
     formData.append('progressPhoto', file);
     toast({ title: 'Foto uploaden...', status: 'info', duration: null, isClosable: true });
     try {
-      const response = await fetch(`${API_URL}/api/photos/upload`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/photos/upload`, {
         method: 'POST',
         headers: { 'x-auth-token': token },
         body: formData,
@@ -355,7 +357,8 @@ function UserDashboard() {
     setRecipes('');
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`${API_URL}/api/recipes/generate`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recipes/generate`, {
         method: 'POST',
         headers: { 'x-auth-token': token },
       });
@@ -374,7 +377,8 @@ function UserDashboard() {
     if (!gewichtInput) return;
     const token = localStorage.getItem('token');
     try {
-      await fetch(`${API_URL}/api/log/gewicht`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      await fetch(`${process.env.REACT_APP_API_URL}/api/log/gewicht`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify({ gewicht: gewichtInput }),
@@ -392,7 +396,8 @@ function UserDashboard() {
   const logVoeding = async (logData) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`${API_URL}/api/log/voeding-analyse`, {
+      // --- FIX: Gebruik process.env.REACT_APP_API_URL ---
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/log/voeding-analyse`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
         body: JSON.stringify(logData),

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API_URL from '../api'; // Importeer de centrale URL
+// De lokale API_URL import is verwijderd
 
 import {
   Box, Button, Flex, Input, Stack, Heading, Text, useToast, Progress, FormControl, FormLabel, Textarea, Alert, AlertIcon
@@ -25,7 +25,8 @@ const intakeSteps = [
 
 function Intake() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [intakeData, setIntakeData] = useState({});\n  const [currentStepData, setCurrentStepData] = useState({});
+  const [intakeData, setIntakeData] = useState({});
+  const [currentStepData, setCurrentStepData] = useState({});
   const [registrationData, setRegistrationData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +34,11 @@ function Intake() {
   const toast = useToast();
 
   const handleNext = (event) => {
-    event.preventDefault();\n    // Valideer en bewaar de data van de huidige stap\n    const stepId = intakeSteps[currentStep].id;\n    setIntakeData(prevData => ({ ...prevData, [stepId]: currentStepData }));\n    setCurrentStep(currentStep + 1);\n    setCurrentStepData({}); // Reset de data voor de volgende stap
+    event.preventDefault();
+    const stepId = intakeSteps[currentStep].id;
+    setIntakeData(prevData => ({ ...prevData, [stepId]: currentStepData }));
+    setCurrentStep(currentStep + 1);
+    setCurrentStepData({});
   };
 
   const handleRegister = async (event) => {
@@ -41,7 +46,6 @@ function Intake() {
     setIsLoading(true);
     setError('');
 
-    // Voeg de data van de laatste stap toe aan de totale intakeData
     const finalIntakeData = { ...intakeData, [intakeSteps[currentStep].id]: currentStepData };
 
     const finalPayload = {
@@ -51,7 +55,7 @@ function Intake() {
     };
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/register`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(finalPayload),
@@ -80,7 +84,6 @@ function Intake() {
     }
   };
 
-  // Deze functie bevat nu ALLE stappen
   const renderStep = () => {
     const step = intakeSteps[currentStep];
     switch (step.id) {
