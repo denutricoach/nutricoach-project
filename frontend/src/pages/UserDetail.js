@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import API_URL from '../api';
+
 import { jwtDecode } from 'jwt-decode';
-import WeightChart from './WeightChart'; // *** STAP 1: IMPORTEER DE GRAFIEK ***
+import WeightChart from '../components/WeightChart'; // CORRECT
+ // *** STAP 1: IMPORTEER DE GRAFIEK ***
 
 import {
   Box, Heading, SimpleGrid, Card, CardHeader, CardBody, Text, Spinner, Flex, Alert, AlertIcon, Grid, GridItem, Textarea, Button, Stack, Tag, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Input, HStack

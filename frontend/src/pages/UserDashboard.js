@@ -6,7 +6,7 @@ import WeightChart from './WeightChart';
 import GoalsModal from './GoalsModal';
 import RecipeModal from './RecipeModal';
 import FeedbackModal from './FeedbackModal';
-import API_URL from '../api';
+
 
 import { AddIcon, CheckIcon, InfoIcon, SearchIcon, ArrowForwardIcon } from '@chakra-ui/icons';
 import {
