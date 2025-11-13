@@ -1,12 +1,29 @@
-const express = require('express');\nconst session = require('express-session');\nconst passport = require('passport');\nconst cors = require('cors');
+// Force backend re-evaluation
+const express = require('express');
+const session = require('express-session');
+const passport = require('passport');
+const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 
 dotenv.config();
 
-connectDB();\n\n// Passport config\nrequire('./config/passport')(passport);
+connectDB();
 
-const app = express();\n\n// CORS instellingen (belangrijk voor frontend/backend communicatie)\napp.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }));\n\n// Session middleware (nodig voor Passport)\napp.use(session({ secret: process.env.SESSION_SECRET || 'secret', resave: false, saveUninitialized: false }));\n\n// Passport middleware\napp.use(passport.initialize());\napp.use(passport.session());
+// Passport config
+require('./config/passport')(passport);
+
+const app = express();
+
+// CORS instellingen (belangrijk voor frontend/backend communicatie)
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true } ));
+
+// Session middleware (nodig voor Passport)
+app.use(session({ secret: process.env.SESSION_SECRET || 'secret', resave: false, saveUninitialized: false }));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(express.json());
 
