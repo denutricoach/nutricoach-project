@@ -11,6 +11,9 @@
         "acorn-jsx": "^5.3.2",
         "acorn-walk": "^7.2.0",
         "address": "^1.2.2",
+        "passport": "^0.7.0",
+        "passport-google-oauth20": "^2.0.0",
+
         "adjust-sourcemap-loader": "^4.0.0",
         "agent-base": "^6.0.2",
         "ajv": "^6.12.6",
