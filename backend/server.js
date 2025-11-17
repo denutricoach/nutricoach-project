@@ -1,4 +1,14 @@
 // Force backend re-evaluation
+// ... (bovenaan je bestand)
+dotenv.config();
+
+// NIEUWE REGEL: Log de waarde direct na het laden van de variabelen
+console.log(`CORS origin wordt ingesteld voor: ${process.env.CLIENT_URL}`);
+
+connectDB();
+
+// ... (rest van je code)
+
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
