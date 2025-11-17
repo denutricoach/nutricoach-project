@@ -20,8 +20,14 @@ require('./config/passport')(passport);
 
 const app = express();
 
-// CORS instellingen (belangrijk voor frontend/backend communicatie)
+// --- BELANGRIJKE CORS FIX ---
+// 1. Handel preflight 'OPTIONS' verzoeken expliciet af.
+// Dit is de sleutel om complexe CORS-fouten op te lossen.
+app.options('*', cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true } ));
+
+// 2. Stel de CORS-headers in voor alle andere verzoeken (GET, POST, etc.).
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }  ));
+// --- EINDE CORS FIX ---
 
 // Session middleware (nodig voor Passport)
 app.use(session({ secret: process.env.SESSION_SECRET || 'secret', resave: false, saveUninitialized: false }));
