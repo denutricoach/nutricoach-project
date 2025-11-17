@@ -6,11 +6,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 
-// Laad omgevingsvariabelen uit .env bestand (voor lokaal) of Render's environment
+// Laad omgevingsvariabelen
 dotenv.config();
-
-// DEBUG: Log de CLIENT_URL om te controleren of deze correct wordt geladen
-console.log(`CORS origin wordt ingesteld voor: ${process.env.CLIENT_URL}`);
 
 // Maak verbinding met de database
 connectDB();
@@ -20,16 +17,34 @@ require('./config/passport')(passport);
 
 const app = express();
 
-// --- BELANGRIJKE CORS FIX ---
-// 1. Handel preflight 'OPTIONS' verzoeken expliciet af.
-// Dit is de sleutel om complexe CORS-fouten op te lossen.
-app.options('*', cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true } ));
+// --- ULTIEME DEBUG SPION ---
+// Deze middleware wordt als ALLEREERSTE uitgevoerd voor ELK verzoek.
+app.use((req, res, next) => {
+  console.log(`INCOMING REQUEST: ${req.method} ${req.originalUrl}`);
+  next(); // Ga door naar de volgende middleware
+});
+// --- EINDE SPION ---
 
-// 2. Stel de CORS-headers in voor alle andere verzoeken (GET, POST, etc.).
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }  ));
-// --- EINDE CORS FIX ---
 
-// Session middleware (nodig voor Passport)
+// --- EXPLICIETE CORS CONFIGURATIE ---
+const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:3000'];
+const corsOptions = {
+  origin: function (origin, callback ) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
+  allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+};
+app.use(cors(corsOptions));
+// --- EINDE CONFIGURATIE ---
+
+
+// Session middleware
 app.use(session({ secret: process.env.SESSION_SECRET || 'secret', resave: false, saveUninitialized: false }));
 
 // Passport middleware
