@@ -1,7 +1,7 @@
 // Force backend re-evaluation
 const express = require('express');
-const session = require('express-session');
-const passport = require('passport');
+// const session = require('express-session'); // TIJDELIJK UIT
+// const passport = require('passport'); // TIJDELIJK UIT
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
@@ -12,21 +12,13 @@ dotenv.config();
 // Maak verbinding met de database
 connectDB();
 
-// Passport config
-require('./config/passport')(passport);
+// Passport config - TIJDELIJK UIT
+// require('./config/passport')(passport);
 
 const app = express();
 
-// --- ULTIEME DEBUG SPION ---
-// Deze middleware wordt als ALLEREERSTE uitgevoerd voor ELK verzoek.
-app.use((req, res, next) => {
-  console.log(`INCOMING REQUEST: ${req.method} ${req.originalUrl}`);
-  next(); // Ga door naar de volgende middleware
-});
-// --- EINDE SPION ---
-
-
 // --- EXPLICIETE CORS CONFIGURATIE ---
+// We gebruiken de meest robuuste versie die we hebben.
 const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:3000'];
 const corsOptions = {
   origin: function (origin, callback ) {
@@ -44,12 +36,12 @@ app.use(cors(corsOptions));
 // --- EINDE CONFIGURATIE ---
 
 
-// Session middleware
-app.use(session({ secret: process.env.SESSION_SECRET || 'secret', resave: false, saveUninitialized: false }));
+// Session middleware - TIJDELIJK UIT
+// app.use(session({ secret: process.env.SESSION_SECRET || 'secret', resave: false, saveUninitialized: false }));
 
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
+// Passport middleware - TIJDELIJK UIT
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 // Middleware om JSON-verzoeken te parsen
 app.use(express.json());
